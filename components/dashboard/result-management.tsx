@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { 
   BarChart3, 
   Plus, 
@@ -16,7 +17,8 @@ import {
   Award,
   TrendingUp,
   TrendingDown,
-  Minus
+  Minus,
+  Settings
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -45,11 +47,24 @@ interface ResultManagementProps {
   schoolId: string
 }
 
+interface ExamType {
+  id: string
+  name: string
+  description?: string
+  is_active: boolean
+  created_at: string
+}
 export function ResultManagement({ schoolId }: ResultManagementProps) {
   const [results, setResults] = useState<Result[]>([])
+  const [examTypes, setExamTypes] = useState<ExamType[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showExamTypeDialog, setShowExamTypeDialog] = useState(false)
+  const [newExamType, setNewExamType] = useState({
+    name: '',
+    description: ''
+  })
   const [formData, setFormData] = useState<ResultFormData>({
     roll_number: '',
     class: '',
@@ -61,14 +76,14 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
   const [bulkResults, setBulkResults] = useState<ResultFormData[]>([])
   const [showBulkEntry, setShowBulkEntry] = useState(false)
 
-  const examTypes = [
-    'First Terminal',
-    'Second Terminal',
-    'Final Exam',
-    'Class Test',
-    'Assignment',
-    'Practical',
-    'Oral Test'
+  const defaultExamTypes = [
+    { name: 'First Terminal', description: 'First terminal examination' },
+    { name: 'Second Terminal', description: 'Second terminal examination' },
+    { name: 'Final Exam', description: 'Final examination' },
+    { name: 'Class Test', description: 'Regular class test' },
+    { name: 'Assignment', description: 'Assignment evaluation' },
+    { name: 'Practical', description: 'Practical examination' },
+    { name: 'Oral Test', description: 'Oral examination' }
   ]
 
   const subjects = [
@@ -90,6 +105,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
 
   useEffect(() => {
     fetchResults()
+    fetchExamTypes()
   }, [schoolId])
 
   const fetchResults = async () => {
@@ -104,6 +120,104 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
       setResults(data || [])
     } catch (err: any) {
       setError(err.message || 'Failed to fetch results')
+    }
+  }
+
+  const fetchExamTypes = async () => {
+    try {
+      // First, check if exam types exist for this school
+      const { data: existingTypes, error: fetchError } = await supabase
+        .from('exam_types')
+        .select('*')
+        .eq('school_id', schoolId)
+        .eq('is_active', true)
+        .order('name')
+
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError
+      }
+
+      if (!existingTypes || existingTypes.length === 0) {
+        // Create default exam types for this school
+        const defaultTypes = defaultExamTypes.map(type => ({
+          school_id: schoolId,
+          name: type.name,
+          description: type.description,
+          is_active: true
+        }))
+
+        const { data: createdTypes, error: createError } = await supabase
+          .from('exam_types')
+          .insert(defaultTypes)
+          .select()
+
+        if (createError) throw createError
+        setExamTypes(createdTypes || [])
+      } else {
+        setExamTypes(existingTypes)
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch exam types:', err)
+      // Fallback to default types if database fails
+      setExamTypes(defaultExamTypes.map((type, index) => ({
+        id: `default-${index}`,
+        name: type.name,
+        description: type.description,
+        is_active: true,
+        created_at: new Date().toISOString()
+      })))
+    }
+  }
+
+  const handleCreateExamType = async () => {
+    if (!newExamType.name.trim()) {
+      setError('Exam type name is required')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      const { data, error } = await supabase
+        .from('exam_types')
+        .insert({
+          school_id: schoolId,
+          name: newExamType.name.trim(),
+          description: newExamType.description.trim() || null,
+          is_active: true
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      setExamTypes(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)))
+      setNewExamType({ name: '', description: '' })
+      setShowExamTypeDialog(false)
+      setSuccess('Exam type created successfully!')
+    } catch (err: any) {
+      setError(err.message || 'Failed to create exam type')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteExamType = async (examTypeId: string) => {
+    if (!confirm('Are you sure you want to delete this exam type? This action cannot be undone.')) return
+
+    try {
+      const { error } = await supabase
+        .from('exam_types')
+        .update({ is_active: false })
+        .eq('id', examTypeId)
+
+      if (error) throw error
+
+      setExamTypes(prev => prev.filter(type => type.id !== examTypeId))
+      setSuccess('Exam type deleted successfully!')
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete exam type')
     }
   }
 
@@ -265,6 +379,70 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
               Result Management
             </CardTitle>
             <div className="flex space-x-2">
+              <Dialog open={showExamTypeDialog} onOpenChange={setShowExamTypeDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Manage Exam Types
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Manage Exam Types</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="examTypeName">Exam Type Name</Label>
+                      <Input
+                        id="examTypeName"
+                        value={newExamType.name}
+                        onChange={(e) => setNewExamType(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="e.g., Mid-term Exam"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="examTypeDescription">Description (Optional)</Label>
+                      <Input
+                        id="examTypeDescription"
+                        value={newExamType.description}
+                        onChange={(e) => setNewExamType(prev => ({ ...prev, description: e.target.value }))}
+                        placeholder="Brief description of the exam type"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handleCreateExamType} 
+                      disabled={loading || !newExamType.name.trim()}
+                      className="w-full"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Exam Type
+                    </Button>
+                    
+                    <div className="border-t pt-4">
+                      <h4 className="font-medium mb-3">Existing Exam Types</h4>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {examTypes.map((type) => (
+                          <div key={type.id} className="flex items-center justify-between p-2 border rounded">
+                            <div>
+                              <span className="font-medium">{type.name}</span>
+                              {type.description && (
+                                <p className="text-sm text-gray-500">{type.description}</p>
+                              )}
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleDeleteExamType(type.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button
                 variant={showBulkEntry ? "outline" : "default"}
                 onClick={() => setShowBulkEntry(!showBulkEntry)}
@@ -358,7 +536,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {examTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                        <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
