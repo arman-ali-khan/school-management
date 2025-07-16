@@ -48,6 +48,12 @@ const menuItems = [
     category: 'main'
   },
   {
+    id: 'carousel',
+    label: 'Homepage Carousel',
+    icon: Image,
+    category: 'content'
+  },
+  {
     id: 'about-section',
     label: 'About Section',
     icon: Edit,

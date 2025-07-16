@@ -44,7 +44,7 @@ export function HeroCarousel({ images }: HeroCarouselProps) {
   }
 
   return (
-    <div className="relative h-96 overflow-hidden rounded-lg">
+    <div className="relative h-[450px] overflow-hidden rounded-lg">
       {images.map((image, index) => (
         <div
           key={index}
@@ -60,8 +60,19 @@ export function HeroCarousel({ images }: HeroCarouselProps) {
           />
           <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
             <div className="text-center text-white max-w-3xl px-4">
+                
               <h1 className="text-4xl md:text-5xl font-bold mb-4">{image.title}</h1>
               <p className="text-xl md:text-2xl">{image.description}</p>
+                {image.button_text && image.button_link && (
+                    <div className="mt-6">
+                      <a
+                        href={image.button_link}
+                        className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200"
+                      >
+                        {image.button_text}
+                      </a>
+                    </div>
+                  )}
             </div>
           </div>
         </div>

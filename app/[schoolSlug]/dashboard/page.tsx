@@ -13,6 +13,7 @@ import { ResultManagement } from '@/components/dashboard/result-management'
 import { SettingsManagement } from '@/components/dashboard/settings-management'
 import { ApplicationDetails } from '@/components/dashboard/application-details'
 import { ApplicationEdit } from '@/components/dashboard/application-edit'
+import { CarouselManagement } from '@/components/dashboard/carousel-management'
 import { 
   Users, 
   FileText, 
@@ -254,6 +255,8 @@ export default function DashboardPage({ params }: { params: { schoolSlug: string
         return renderOverview()
       case 'applications':
         return renderApplicationsSection()
+      case 'carousel':
+        return <CarouselManagement schoolId={school?.id} />
       case 'about-section':
         return (
           <ContentManagement

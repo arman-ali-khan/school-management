@@ -62,6 +62,9 @@ export function SchoolLanding({ school, content }: SchoolLandingProps) {
   const locationContent = getContentBySection('location')
   const noticesContent = getContentBySection('notices')
 
+  // Filter only active slides for display
+  const activeSlides = (heroContent.images || []).filter((slide: any) => slide.status === 'active')
+
   // Available class options
   const classOptions = [
     'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
@@ -147,7 +150,7 @@ export function SchoolLanding({ school, content }: SchoolLandingProps) {
       
       {/* Hero Section */}
       <section id="home" className="relative">
-        <HeroCarousel images={heroContent.images || []} />
+        <HeroCarousel images={activeSlides} />
       </section>
 
      

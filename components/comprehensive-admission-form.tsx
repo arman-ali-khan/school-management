@@ -106,6 +106,7 @@ export function ComprehensiveAdmissionForm({ schoolId, schoolSlug, onSuccess }: 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [currentStep, setCurrentStep] = useState(1)
+  const [uploading, setUploading] = useState(false)
   const totalSteps = 8
 
   const [formData, setFormData] = useState<FormData>({
@@ -168,6 +169,64 @@ export function ComprehensiveAdmissionForm({ schoolId, schoolSlug, onSuccess }: 
   const classes = ['Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10']
   const groups = ['Science', 'Commerce', 'Arts']
   const boards = ['Dhaka', 'Chittagong', 'Comilla', 'Jessore', 'Rajshahi', 'Barisal', 'Sylhet', 'Dinajpur', 'Madrasah', 'Technical']
+
+  const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+  const MAX_FILE_SIZE = 2 * 1024 * 1024 // 2MB in bytes
+
+  const handleImageUpload = async (file: File) => {
+    if (!CLOUDINARY_CLOUD_NAME) {
+      throw new Error('Cloudinary is not configured. Please add NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME to your environment variables.')
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('File size must be less than 2MB')
+    }
+
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Please select an image file')
+    }
+
+    setUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('upload_preset', 'ml_default') // You may need to create an unsigned upload preset
+      formData.append('folder', `school-${schoolId}/students`)
+
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image')
+      }
+
+      const data = await response.json()
+      return data.secure_url
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      const imageUrl = await handleImageUpload(file)
+      updateFormData('student_photo_url', imageUrl)
+      
+      // Show success message (you can add toast here if available)
+      console.log('Image uploaded successfully')
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload image')
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -289,31 +348,102 @@ export function ComprehensiveAdmissionForm({ schoolId, schoolSlug, onSuccess }: 
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div>
-          <Label htmlFor="student_photo_url">Photo URL *</Label>
-          <Input
-            id="student_photo_url"
-            type="url"
-            value={formData.student_photo_url}
-            onChange={(e) => updateFormData('student_photo_url', e.target.value)}
-            placeholder="https://images.pexels.com/photos/..."
-            className="mt-1"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Please provide a direct link to the student's photo (Cloudinary or similar service)
-          </p>
-          {formData.student_photo_url && (
-            <div className="mt-3">
-              <img
-                src={formData.student_photo_url}
-                alt="Student preview"
-                className="w-32 h-32 rounded-lg object-cover border"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg'
-                }}
-              />
+        <div className="space-y-6">
+          {/* File Upload Section */}
+          <div>
+            <Label htmlFor="photo-upload">Upload Student Photo *</Label>
+            <div className="mt-2 space-y-4">
+              <div className="flex items-center justify-center w-full">
+                <label
+                  htmlFor="photo-upload"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    {uploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600 mb-4"></div>
+                        <p className="text-sm text-gray-600">Uploading image...</p>
+                      </>
+                    ) : formData.student_photo_url ? (
+                      <>
+                        <img
+                          src={formData.student_photo_url}
+                          alt="Student preview"
+                          className="w-32 h-32 rounded-lg object-cover border mb-4"
+                          onError={(e) => {
+                            e.currentTarget.src = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg'
+                          }}
+                        />
+                        <p className="text-sm text-green-600 font-medium">Photo uploaded successfully!</p>
+                        <p className="text-xs text-gray-500">Click to change photo</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-10 h-10 mb-4 text-gray-400" />
+                        <p className="mb-2 text-sm text-gray-500">
+                          <span className="font-semibold">Click to upload</span> student photo
+                        </p>
+                        <p className="text-xs text-gray-500">PNG, JPG, JPEG up to 2MB</p>
+                      </>
+                    )}
+                  </div>
+                  <input
+                    id="photo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={uploading}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              
+              {/* Progress indicator */}
+              {uploading && (
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-green-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Alternative URL Input */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or enter photo URL</span>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="student_photo_url">Photo URL (Alternative)</Label>
+            <Input
+              id="student_photo_url"
+              type="url"
+              value={formData.student_photo_url}
+              onChange={(e) => updateFormData('student_photo_url', e.target.value)}
+              placeholder="https://images.pexels.com/photos/..."
+              className="mt-1"
+              disabled={uploading}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              You can also paste a direct link to the student's photo
+            </p>
+          </div>
+
+          {/* Guidelines */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-900 mb-2">Photo Guidelines</h4>
+            <ul className="text-sm text-blue-800 space-y-1">
+              <li>• Use a clear, recent photo of the student</li>
+              <li>• Photo should be passport-size or similar format</li>
+              <li>• Maximum file size: 2MB</li>
+              <li>• Supported formats: JPG, PNG, JPEG</li>
+              <li>• Photo will be used for official school records</li>
+            </ul>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -1157,19 +1287,20 @@ export function ComprehensiveAdmissionForm({ schoolId, schoolSlug, onSuccess }: 
               type="button"
               onClick={nextStep}
               className="bg-green-600 hover:bg-green-700"
+              disabled={uploading}
             >
-              Next
+              {uploading ? 'Uploading...' : 'Next'}
             </Button>
           ) : (
             <Button
               type="submit"
               className="bg-green-600 hover:bg-green-700"
-              disabled={loading || !formData.terms_accepted}
+              disabled={loading || uploading || !formData.terms_accepted}
             >
-              {loading ? (
+              {loading || uploading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Submitting...
+                  {uploading ? 'Uploading...' : 'Submitting...'}
                 </>
               ) : (
                 <>
