@@ -424,13 +424,13 @@ export function SchoolLanding({ school, content }: SchoolLandingProps) {
             {(studentsContent.featured || []).map((student: any, index: number) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden">
+                  <div className="w-44 h-44 mx-auto mb-4 rounded-full overflow-hidden">
                     <Image
-                      src={student.photo || '/placeholder-student.jpg'}
+                      src={student.photo || '/placeholder-student.jpg'} 
                       alt={student.name}
-                      width={80}
-                      height={80}
-                      className="object-cover"
+                      width={280}
+                      height={280}
+                      className="object-cover w-44 h-44"
                     />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{student.name}</h3>

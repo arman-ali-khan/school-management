@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { FeaturedStudentsManagement } from './featured-students-management'
 
 interface ContentManagementProps {
   schoolId: string
@@ -411,158 +412,8 @@ export function ContentManagement({
   }
 
   const renderFeaturedStudents = () => {
-    const students = formData.featured || []
-
-    const addStudent = () => {
-      const newStudent = {
-        id: Date.now(),
-        name: '',
-        class: '',
-        achievement: '',
-        photo: '',
-        description: ''
-      }
-      setFormData(prev => ({
-        ...prev,
-        featured: [...students, newStudent]
-      }))
-    }
-
-    const removeStudent = (index: number) => {
-      setFormData(prev => ({
-        ...prev,
-        featured: students.filter((_: any, i: number) => i !== index)
-      }))
-    }
-
-    const updateStudent = (index: number, field: string, value: string) => {
-      setFormData(prev => ({
-        ...prev,
-        featured: students.map((student: any, i: number) => 
-          i === index ? { ...student, [field]: value } : student
-        )
-      }))
-    }
-
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Featured Students</h3>
-          {editing && (
-            <Button onClick={addStudent} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Student
-            </Button>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {students.map((student: any, index: number) => (
-            <Card key={index}>
-              <CardContent className="p-4">
-                {editing && (
-                  <div className="flex justify-end mb-2">
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeStudent(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  <div>
-                    <Label>Student Name</Label>
-                    <Input
-                      value={student.name || ''}
-                      onChange={(e) => updateStudent(index, 'name', e.target.value)}
-                      placeholder="Student name"
-                      disabled={!editing}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Class</Label>
-                      <Input
-                        value={student.class || ''}
-                        onChange={(e) => updateStudent(index, 'class', e.target.value)}
-                        placeholder="Class 10"
-                        disabled={!editing}
-                        className="mt-1"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Achievement</Label>
-                      <Input
-                        value={student.achievement || ''}
-                        onChange={(e) => updateStudent(index, 'achievement', e.target.value)}
-                        placeholder="Top Student"
-                        disabled={!editing}
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Photo URL</Label>
-                    <Input
-                      value={student.photo || ''}
-                      onChange={(e) => updateStudent(index, 'photo', e.target.value)}
-                      placeholder="https://images.pexels.com/..."
-                      disabled={!editing}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Description</Label>
-                    <Textarea
-                      value={student.description || ''}
-                      onChange={(e) => updateStudent(index, 'description', e.target.value)}
-                      placeholder="Student description..."
-                      rows={2}
-                      disabled={!editing}
-                      className="mt-1"
-                    />
-                  </div>
-
-                  {student.photo && (
-                    <div className="w-20 h-20 rounded-full overflow-hidden mx-auto">
-                      <img
-                        src={student.photo}
-                        alt={student.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg'
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {students.length === 0 && (
-          <div className="text-center py-8 text-gray-500">
-            <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <p>No featured students</p>
-            {editing && (
-              <Button onClick={addStudent} className="mt-4">
-                <Plus className="h-4 w-4 mr-2" />
-                Add First Student
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-    )
+    // Use the new dedicated Featured Students Management component
+    return <FeaturedStudentsManagement schoolId={schoolId} />
   }
 
   const renderContent = () => {
@@ -575,6 +426,7 @@ export function ContentManagement({
       case 'notices':
         return renderNoticesSection()
       case 'featured-students':
+      case 'students':
         return renderFeaturedStudents()
       default:
         return (

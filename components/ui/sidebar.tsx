@@ -102,12 +102,6 @@ const menuItems = [
     category: 'academic'
   },
   {
-    id: 'exams',
-    label: 'Manage Exams',
-    icon: BookOpen,
-    category: 'academic'
-  },
-  {
     id: 'settings',
     label: 'Site Settings',
     icon: Settings,
