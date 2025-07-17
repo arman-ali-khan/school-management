@@ -27,7 +27,7 @@ export default function AuthCallback() {
 
         if (userData?.school_id) {
           // User has a school, redirect to dashboard
-          router.push(`/${userData.schools.slug}/dashboard`)
+          router.push(`/${userData.schools[0]?.slug}/dashboard`)
         } else {
           // New user, redirect to create school
           router.push('/create-school')

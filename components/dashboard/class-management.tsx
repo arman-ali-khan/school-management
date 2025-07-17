@@ -48,6 +48,16 @@ interface Teacher {
   subject?: string
 }
 
+interface ClassEditFormData {
+  name: string
+  section: string
+  academic_year: string
+  class_teacher_id: string
+  capacity: string
+  room_number: string
+  status: string
+}
+
 interface ClassManagementProps {
   schoolId: string
   section: 'classes' | 'create-class'
@@ -73,7 +83,7 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
     status: 'active'
   })
 
-  const [editFormData, setEditFormData] = useState<any>({})
+  const [editFormData, setEditFormData] = useState<ClassEditFormData | null>(null)
 
   const classNames = [
     'Nursery', 'KG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5',
@@ -202,6 +212,11 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
   }
 
   const handleSaveEdit = async (classId: string) => {
+    if (!editFormData) {
+      setError('No form data available')
+      return
+    }
+
     setLoading(true)
     setError('')
 
@@ -223,7 +238,7 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
       if (error) throw error
 
       setEditingClass(null)
-      setEditFormData({})
+      setEditFormData(null)
       fetchClasses()
 
       toast({
@@ -494,8 +509,8 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                         <div>
                           <Label>Class Name</Label>
                           <Select
-                            value={editFormData.name}
-                            onValueChange={(value) => setEditFormData(prev => ({ ...prev, name: value }))}
+                            value={editFormData?.name}
+                            onValueChange={(value) => setEditFormData(prev => prev ? ({ ...prev, name: value }) : null)}
                           >
                             <SelectTrigger className="mt-1">
                               <SelectValue />
@@ -511,8 +526,8 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                         <div>
                           <Label>Section</Label>
                           <Select
-                            value={editFormData.section}
-                            onValueChange={(value) => setEditFormData(prev => ({ ...prev, section: value }))}
+                            value={editFormData?.section}
+                            onValueChange={(value) => setEditFormData(prev => prev ? ({ ...prev, section: value }) : null)}
                           >
                             <SelectTrigger className="mt-1">
                               <SelectValue />
@@ -529,8 +544,8 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                         <div>
                           <Label>Class Teacher</Label>
                           <Select
-                            value={editFormData.class_teacher_id}
-                            onValueChange={(value) => setEditFormData(prev => ({ ...prev, class_teacher_id: value }))}
+                            value={editFormData?.class_teacher_id}
+                            onValueChange={(value) => setEditFormData(prev => prev ? ({ ...prev, class_teacher_id: value }) : null)}
                           >
                             <SelectTrigger className="mt-1">
                               <SelectValue />
@@ -550,8 +565,8 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                           <Label>Capacity</Label>
                           <Input
                             type="number"
-                            value={editFormData.capacity}
-                            onChange={(e) => setEditFormData(prev => ({ ...prev, capacity: e.target.value }))}
+                            value={editFormData?.capacity}
+                            onChange={(e) => setEditFormData(prev => prev ? ({ ...prev, capacity: e.target.value }) : null)}
                             className="mt-1"
                           />
                         </div>
@@ -559,8 +574,8 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                         <div>
                           <Label>Room Number</Label>
                           <Input
-                            value={editFormData.room_number}
-                            onChange={(e) => setEditFormData(prev => ({ ...prev, room_number: e.target.value }))}
+                            value={editFormData?.room_number}
+                            onChange={(e) => setEditFormData(prev => prev ? ({ ...prev, room_number: e.target.value }) : null)}
                             className="mt-1"
                           />
                         </div>
@@ -568,8 +583,8 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                         <div>
                           <Label>Status</Label>
                           <Select
-                            value={editFormData.status}
-                            onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value }))}
+                            value={editFormData?.status}
+                            onValueChange={(value) => setEditFormData(prev => prev ? ({ ...prev, status: value }) : null)}
                           >
                             <SelectTrigger className="mt-1">
                               <SelectValue />
@@ -587,7 +602,7 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                           variant="outline"
                           onClick={() => {
                             setEditingClass(null)
-                            setEditFormData({})
+                            setEditFormData(null)
                           }}
                         >
                           <X className="h-4 w-4 mr-2" />

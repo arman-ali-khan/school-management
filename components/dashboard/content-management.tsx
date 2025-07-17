@@ -37,7 +37,7 @@ export function ContentManagement({
 }: ContentManagementProps) {
   const [editing, setEditing] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState(content || {})
+  const [formData, setFormData] = useState<Record<string, any>>(content || {})
   const [error, setError] = useState('')
 
   const handleSave = async () => {

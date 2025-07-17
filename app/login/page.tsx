@@ -43,7 +43,7 @@ export default function LoginPage() {
 
         if (userData?.school_id) {
           // User has a school, redirect to dashboard
-          router.push(`/${userData.schools.slug}/dashboard`)
+          router.push(`/${userData.schools[0]?.slug}/dashboard`)
         } else {
           // User doesn't have a school, redirect to create one
           router.push('/create-school')

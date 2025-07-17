@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { FileText, ArrowLeft, CheckCircle } from 'lucide-react'
@@ -14,7 +14,7 @@ export default function ApplicationPage({ params }: { params: { schoolSlug: stri
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
 
-  useState(() => {
+  useEffect(() => {
     const fetchSchool = async () => {
       try {
         const schoolData = await getSchoolBySlug(params.schoolSlug)

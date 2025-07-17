@@ -46,8 +46,14 @@ interface ResultFormData {
 interface ResultManagementProps {
   schoolId: string
 }
-
-interface ExamType {
+export enum ExamType {
+  HALF_YEARLY = "Half-Yearly",
+  FINAL = "Final",
+  MODEL_TEST = "Model Test",
+  CLASS_TEST = "Class Test",
+  MONTHLY = "Monthly",
+}
+interface DbExamType {
   id: string
   name: string
   description?: string
@@ -56,7 +62,7 @@ interface ExamType {
 }
 export function ResultManagement({ schoolId }: ResultManagementProps) {
   const [results, setResults] = useState<Result[]>([])
-  const [examTypes, setExamTypes] = useState<ExamType[]>([])
+  const [examTypes, setExamTypes] = useState<DbExamType[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -536,7 +542,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
                     </SelectTrigger>
                     <SelectContent>
                       {examTypes.map(type => (
-                        <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
+                       <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -641,11 +647,13 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select exam type" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {examTypes.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
+                 <SelectContent>
+  {(Object.values(ExamType) as string[]).map(type => (
+    <SelectItem key={type} value={type}>
+      {type}
+    </SelectItem>
+  ))}
+</SelectContent>
                 </Select>
               </div>
 

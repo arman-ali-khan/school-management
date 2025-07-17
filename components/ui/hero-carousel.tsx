@@ -10,8 +10,11 @@ interface HeroCarouselProps {
     url: string
     title: string
     description: string
+    button_text?: string   // 👈 optional
+    button_link?: string   // 👈 optional
   }>
 }
+
 
 export function HeroCarousel({ images }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
