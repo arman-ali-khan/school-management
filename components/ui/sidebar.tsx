@@ -116,6 +116,12 @@ const menuItems = [
     category: 'academic'
   },
   {
+    id: 'reports',
+    label: 'Reports & Analytics',
+    icon: BarChart3,
+    category: 'academic'
+  },
+  {
     id: 'settings',
     label: 'Site Settings',
     icon: Settings,
