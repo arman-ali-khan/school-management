@@ -59,6 +59,7 @@ interface FeeRow {
 
 interface FeesManagementProps {
   schoolId: string
+  userRole?: string
 }
 
 const FEE_TYPES = [
@@ -68,7 +69,7 @@ const FEE_TYPES = [
   'Development Fee',
   'Practical Fee',
   'Registration Fee',
-  'SSC Form Fill-up',
+  'Form Fill-up',
   'Others'
 ]
 
@@ -77,7 +78,7 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
 
-export function FeesManagement({ schoolId }: FeesManagementProps) {
+export function FeesManagement({ schoolId, userRole }: FeesManagementProps) {
   const [students, setStudents] = useState<Student[]>([])
   const [feeRecords, setFeeRecords] = useState<FeeRecord[]>([])
   const [loading, setLoading] = useState(true)
@@ -98,7 +99,7 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
     'Development Fee': 0,
     'Practical Fee': 0,
     'Registration Fee': 0,
-    'SSC Form Fill-up': 0,
+    'Form Fill-up': 0,
     'Others': 0
   })
 
@@ -143,6 +144,11 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
   }
 
   const updateFeeAmount = async (studentId: string, feeType: string, amount: number) => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to modify fees')
+      return
+    }
+
     try {
       const existingRecord = feeRecords.find(
         r => r.student_id === studentId && r.fee_type === feeType
@@ -189,6 +195,11 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
   }
 
   const updatePaymentStatus = async (recordId: string, status: 'pending' | 'paid' | 'overdue', paymentMethod?: string) => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to modify payment status')
+      return
+    }
+
     try {
       const updateData: any = { 
         status,
@@ -224,6 +235,11 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
   }
 
   const handleBulkUpdate = async () => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to perform bulk updates')
+      return
+    }
+
     if (selectedStudents.size === 0) {
       setError('Please select at least one student')
       return
@@ -285,7 +301,7 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
         'Development Fee': 0,
         'Practical Fee': 0,
         'Registration Fee': 0,
-        'SSC Form Fill-up': 0,
+        'Form Fill-up': 0,
         'Others': 0
       })
     } catch (err: any) {
@@ -409,6 +425,7 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
+              {userRole !== 'audit_teacher' && (
               <Dialog open={showBulkUpdate} onOpenChange={setShowBulkUpdate}>
                 <DialogTrigger asChild>
                   <Button>
@@ -475,6 +492,7 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
                   </div>
                 </DialogContent>
               </Dialog>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -603,17 +621,20 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
                               type="number"
                               value={fee?.amount || ''}
                               onChange={(e) => {
+                                if (userRole === 'audit_teacher') return
                                 const amount = parseFloat(e.target.value) || 0
                                 updateFeeAmount(row.student.id, feeType, amount)
                               }}
                               placeholder="0"
                               className="h-8 text-center text-xs"
+                              disabled={userRole === 'audit_teacher'}
                             />
                             {fee && fee.amount > 0 && (
                               <div className="flex justify-center">
                                 <Badge 
                                   className={`${getStatusColor(fee.status)} text-xs px-1 py-0 cursor-pointer`}
                                   onClick={() => {
+                                    if (userRole === 'audit_teacher') return
                                     const newStatus = fee.status === 'paid' ? 'pending' : 'paid'
                                     updatePaymentStatus(fee.id, newStatus)
                                   }}
@@ -676,12 +697,22 @@ export function FeesManagement({ schoolId }: FeesManagementProps) {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 className="font-semibold text-blue-900 mb-2">How to Use Fees Management</h4>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Enter fee amounts directly in the table cells</li>
-              <li>• Click on status badges to toggle between Pending/Paid</li>
-              <li>• Use Bulk Update to set fees for multiple students at once</li>
-              <li>• Export to CSV for external processing</li>
-              <li>• Totals are calculated automatically</li>
-              <li>• Green = Paid, Yellow = Pending, Red = Overdue</li>
+              {userRole === 'audit_teacher' ? (
+                <>
+                  <li>• You have read-only access to view fee information</li>
+                  <li>• Contact school administrators to make changes</li>
+                  <li>• You can export data for reporting purposes</li>
+                </>
+              ) : (
+                <>
+                  <li>• Enter fee amounts directly in the table cells</li>
+                  <li>• Click on status badges to toggle between Pending/Paid</li>
+                  <li>• Use Bulk Update to set fees for multiple students at once</li>
+                  <li>• Export to CSV for external processing</li>
+                  <li>• Totals are calculated automatically</li>
+                  <li>• Green = Paid, Yellow = Pending, Red = Overdue</li>
+                </>
+              )}
             </ul>
           </div>
         </CardContent>

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Users, 
   UserPlus, 
@@ -51,7 +52,8 @@ export function TeacherManagement({ schoolId, section }: TeacherManagementProps)
     subject: '',
     qualification: '',
     experience: '',
-    password: ''
+    password: '',
+    role: 'teacher'
   })
 
   useEffect(() => {
@@ -98,7 +100,8 @@ export function TeacherManagement({ schoolId, section }: TeacherManagementProps)
           subject: formData.subject,
           qualification: formData.qualification,
           experience: formData.experience,
-          school_id: schoolId
+          school_id: schoolId,
+          role: formData.role
         })
       })
 
@@ -116,7 +119,8 @@ export function TeacherManagement({ schoolId, section }: TeacherManagementProps)
         subject: '',
         qualification: '',
         experience: '',
-        password: ''
+        password: '',
+        role: 'teacher'
       })
 
       toast({
@@ -255,6 +259,25 @@ export function TeacherManagement({ schoolId, section }: TeacherManagementProps)
             </div>
 
             <div>
+              <Label htmlFor="role">Teacher Role *</Label>
+              <Select
+                value={formData.role}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, role: value }))}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select teacher role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="teacher">Teacher</SelectItem>
+                  <SelectItem value="audit_teacher">Audit Teacher</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-gray-500 mt-1">
+                Teachers have full access, Audit Teachers have read-only access
+              </p>
+            </div>
+
+            <div>
               <Label htmlFor="password">Temporary Password *</Label>
               <Input
                 id="password"
@@ -274,10 +297,10 @@ export function TeacherManagement({ schoolId, section }: TeacherManagementProps)
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="font-semibold text-blue-900 mb-2">Teacher Access</h4>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Can access the school dashboard</li>
-                <li>• Can manage student results</li>
-                <li>• Can view applications (read-only)</li>
-                <li>• Cannot modify school content or settings</li>
+                <li>• <strong>Teacher:</strong> Can access dashboard, manage results, view applications</li>
+                <li>• <strong>Audit Teacher:</strong> Read-only access to dashboard and data</li>
+                <li>• Both roles cannot modify school content or settings</li>
+                <li>• Only school owners can manage teachers and school settings</li>
               </ul>
             </div>
 
@@ -334,7 +357,7 @@ export function TeacherManagement({ schoolId, section }: TeacherManagementProps)
                         <div>
                           <h3 className="font-semibold text-gray-900">{teacher.full_name}</h3>
                           <Badge variant="secondary" className="text-xs">
-                            {teacher.role}
+                            {teacher.role === 'audit_teacher' ? 'Audit Teacher' : 'Teacher'}
                           </Badge>
                         </div>
                       </div>

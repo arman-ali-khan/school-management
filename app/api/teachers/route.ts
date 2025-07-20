@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
       subject, 
       qualification, 
       experience, 
-      school_id 
+      school_id,
+      role = 'teacher'
     } = body
 
     // Validate required fields
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
         id: authData.user.id,
         email,
         full_name,
-        role: 'teacher',
+        role: role,
         school_id
       })
 

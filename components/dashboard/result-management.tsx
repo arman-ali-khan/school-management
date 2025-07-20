@@ -45,6 +45,7 @@ interface ResultFormData {
 
 interface ResultManagementProps {
   schoolId: string
+  userRole?: string
 }
 export enum ExamType {
   HALF_YEARLY = "Half-Yearly",
@@ -60,7 +61,7 @@ interface DbExamType {
   is_active: boolean
   created_at: string
 }
-export function ResultManagement({ schoolId }: ResultManagementProps) {
+export function ResultManagement({ schoolId, userRole }: ResultManagementProps) {
   const [results, setResults] = useState<Result[]>([])
   const [examTypes, setExamTypes] = useState<DbExamType[]>([])
   const [loading, setLoading] = useState(false)
@@ -176,6 +177,11 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
   }
 
   const handleCreateExamType = async () => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to create exam types')
+      return
+    }
+
     if (!newExamType.name.trim()) {
       setError('Exam type name is required')
       return
@@ -210,6 +216,11 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
   }
 
   const handleDeleteExamType = async (examTypeId: string) => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to delete exam types')
+      return
+    }
+
     if (!confirm('Are you sure you want to delete this exam type? This action cannot be undone.')) return
 
     try {
@@ -253,6 +264,11 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
   }
 
   const handleSingleResult = async (e: React.FormEvent) => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to add results')
+      return
+    }
+
     e.preventDefault()
     setLoading(true)
     setError('')
@@ -317,6 +333,11 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
   }
 
   const handleBulkSubmit = async () => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to add bulk results')
+      return
+    }
+
     setLoading(true)
     setError('')
     setSuccess('')
@@ -357,6 +378,11 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
   }
 
   const handleDeleteResult = async (resultId: string) => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to delete results')
+      return
+    }
+
     if (!confirm('Are you sure you want to delete this result?')) return
 
     try {
@@ -385,6 +411,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
               Result Management
             </CardTitle>
             <div className="flex space-x-2">
+              {userRole !== 'audit_teacher' && (
               <Dialog open={showExamTypeDialog} onOpenChange={setShowExamTypeDialog}>
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -449,9 +476,11 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
                   </div>
                 </DialogContent>
               </Dialog>
+              )}
               <Button
                 variant={showBulkEntry ? "outline" : "default"}
                 onClick={() => setShowBulkEntry(!showBulkEntry)}
+                disabled={userRole === 'audit_teacher'}
               >
                 {showBulkEntry ? 'Single Entry' : 'Bulk Entry'}
               </Button>
@@ -474,7 +503,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
       )}
 
       {/* Single Result Entry */}
-      {!showBulkEntry && (
+      {!showBulkEntry && userRole !== 'audit_teacher' && (
         <Card>
           <CardHeader>
             <CardTitle>Add Single Result</CardTitle>
@@ -590,7 +619,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
       )}
 
       {/* Bulk Entry */}
-      {showBulkEntry && (
+      {showBulkEntry && userRole !== 'audit_teacher' && (
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -728,7 +757,10 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
           {results.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <Award className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No results added yet</p>
+              <p>No results {userRole === 'audit_teacher' ? 'available' : 'added yet'}</p>
+              {userRole === 'audit_teacher' && (
+                <p className="text-sm">Contact school administrators to add results</p>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
@@ -768,6 +800,7 @@ export function ResultManagement({ schoolId }: ResultManagementProps) {
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDeleteResult(result.id)}
+                     disabled={userRole === 'audit_teacher'}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

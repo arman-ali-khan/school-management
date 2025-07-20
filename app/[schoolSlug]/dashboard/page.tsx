@@ -239,6 +239,7 @@ export default function DashboardPage({ params }: { params: { schoolSlug: string
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         schoolSlug={params.schoolSlug}
+        userRole={userRole?.role}
       />
 
       {/* Main Content */}
@@ -304,9 +305,9 @@ export default function DashboardPage({ params }: { params: { schoolSlug: string
       case 'create-student':
         return <StudentManagement schoolId={school?.id} section="create-student" />
       case 'results':
-        return <ResultManagement schoolId={school?.id} />
+        return <ResultManagement schoolId={school?.id} userRole={userRole?.role} />
       case 'fees':
-        return <FeesManagement schoolId={school?.id} />
+        return <FeesManagement schoolId={school?.id} userRole={userRole?.role} />
       case 'exams':
         return (
           <Card>
@@ -326,6 +327,7 @@ export default function DashboardPage({ params }: { params: { schoolSlug: string
             schoolId={school?.id}
             school={school}
             onSchoolUpdate={setSchool}
+            userRole={userRole?.role}
           />
         )
       default:

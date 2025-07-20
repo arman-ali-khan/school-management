@@ -33,9 +33,10 @@ interface SettingsManagementProps {
   schoolId: string
   school: School
   onSchoolUpdate: (school: School) => void
+  userRole?: string
 }
 
-export function SettingsManagement({ schoolId, school, onSchoolUpdate }: SettingsManagementProps) {
+export function SettingsManagement({ schoolId, school, onSchoolUpdate, userRole }: SettingsManagementProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -73,6 +74,11 @@ export function SettingsManagement({ schoolId, school, onSchoolUpdate }: Setting
   })
 
   const handleSave = async () => {
+    if (userRole === 'audit_teacher') {
+      setError('Audit teachers do not have permission to modify settings')
+      return
+    }
+
     setLoading(true)
     setError('')
     setSuccess('')
@@ -510,12 +516,17 @@ export function SettingsManagement({ schoolId, school, onSchoolUpdate }: Setting
         </Button>
         <Button
           onClick={handleSave}
-          disabled={loading}
+          disabled={loading || userRole === 'audit_teacher'}
           className="bg-green-600 hover:bg-green-700"
         >
           <Save className="h-4 w-4 mr-2" />
           {loading ? 'Saving...' : 'Save Settings'}
         </Button>
+        {userRole === 'audit_teacher' && (
+          <p className="text-sm text-gray-500 mt-2">
+            Audit teachers have read-only access to settings
+          </p>
+        )}
       </div>
     </div>
   )

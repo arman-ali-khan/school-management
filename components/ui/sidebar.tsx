@@ -33,6 +33,7 @@ interface SidebarProps {
   collapsed?: boolean
   onToggleCollapse?: () => void
   schoolSlug?: string
+  userRole?: string
 }
 
 const menuItems = [
@@ -122,6 +123,17 @@ const menuItems = [
   }
 ]
 
+// Filter menu items based on user role
+const getFilteredMenuItems = (userRole?: string) => {
+  if (userRole === 'audit_teacher') {
+    // Audit teachers get read-only access to limited sections
+    return menuItems.filter(item => 
+      ['overview', 'applications', 'students', 'results'].includes(item.id)
+    )
+  }
+  return menuItems
+}
+
 const categories = {
   main: 'Dashboard',
   content: 'Content Management',
@@ -161,12 +173,14 @@ export function Sidebar({
   schoolName, 
   collapsed = false,
   onToggleCollapse,
-  schoolSlug 
+  schoolSlug,
+  userRole
 }: SidebarProps) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  const groupedItems = menuItems.reduce((acc, item) => {
+  const filteredItems = getFilteredMenuItems(userRole)
+  const groupedItems = filteredItems.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = []
     }
