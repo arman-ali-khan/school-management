@@ -22,7 +22,8 @@ import {
   Award,
   Menu,
   X,
-  Globe
+  Globe,
+  DollarSign
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -105,6 +106,12 @@ const menuItems = [
     id: 'results',
     label: 'Create Results',
     icon: BarChart3,
+    category: 'academic'
+  },
+  {
+    id: 'fees',
+    label: 'Student Fees',
+    icon: DollarSign,
     category: 'academic'
   },
   {

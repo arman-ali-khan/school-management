@@ -15,6 +15,7 @@ import { SettingsManagement } from '@/components/dashboard/settings-management'
 import { ApplicationDetails } from '@/components/dashboard/application-details'
 import { ApplicationEdit } from '@/components/dashboard/application-edit'
 import { CarouselManagement } from '@/components/dashboard/carousel-management'
+import { FeesManagement } from '@/components/dashboard/fees-management'
 import { 
   Users, 
   FileText, 
@@ -304,6 +305,8 @@ export default function DashboardPage({ params }: { params: { schoolSlug: string
         return <StudentManagement schoolId={school?.id} section="create-student" />
       case 'results':
         return <ResultManagement schoolId={school?.id} />
+      case 'fees':
+        return <FeesManagement schoolId={school?.id} />
       case 'exams':
         return (
           <Card>

@@ -308,7 +308,7 @@ export function StudentManagement({ schoolId, section, studentId }: StudentManag
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          student.roll_number.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesClass = !filterClass || student.class === filterClass
+    const matchesClass = filterClass === 'all' || !filterClass || student.class === filterClass
     return matchesSearch && matchesClass
   })
 
@@ -1143,6 +1143,7 @@ export function StudentManagement({ schoolId, section, studentId }: StudentManag
                 <SelectValue placeholder="All Classes" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All Classes</SelectItem>
                 {uniqueClasses.map(cls => (
                   <SelectItem key={cls} value={cls}>{cls}</SelectItem>
                 ))}
