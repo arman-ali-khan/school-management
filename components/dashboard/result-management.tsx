@@ -78,7 +78,7 @@ export function ResultManagement({ schoolId, userRole }: ResultManagementProps) 
     subject: '',
     marks: '',
     total_marks: '100',
-    exam_type: ''
+    exam_type: 'initial-placeholder'
   })
   const [bulkResults, setBulkResults] = useState<ResultFormData[]>([])
   const [showBulkEntry, setShowBulkEntry] = useState(false)
@@ -570,7 +570,10 @@ export function ResultManagement({ schoolId, userRole }: ResultManagementProps) 
                       <SelectValue placeholder="Select exam type" />
                     </SelectTrigger>
                     <SelectContent>
-                      {examTypes.map(type => (
+                      <SelectItem value="initial-placeholder" disabled>
+                        Select exam type
+                      </SelectItem>
+                      {examTypes.filter(type => type.name && type.name.trim() !== '').map(type => (
                        <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -677,12 +680,13 @@ export function ResultManagement({ schoolId, userRole }: ResultManagementProps) 
                     <SelectValue placeholder="Select exam type" />
                   </SelectTrigger>
                  <SelectContent>
-  {(Object.values(ExamType) as string[]).map(type => (
-    <SelectItem key={type} value={type}>
-      {type}
-    </SelectItem>
-  ))}
-</SelectContent>
+                    <SelectItem value="initial-placeholder" disabled>
+                      Select exam type
+                    </SelectItem>
+                    {examTypes.filter(type => type.name && type.name.trim() !== '').map(type => (
+                      <SelectItem key={type.id} value={type.name}>{type.name}</SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
 

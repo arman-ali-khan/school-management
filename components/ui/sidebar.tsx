@@ -23,7 +23,8 @@ import {
   Menu,
   X,
   Globe,
-  DollarSign
+  DollarSign,
+  MessageSquare
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -120,6 +121,12 @@ const menuItems = [
     label: 'Reports & Analytics',
     icon: BarChart3,
     category: 'academic'
+  },
+  {
+    id: 'complaints',
+    label: 'Manage Complaints',
+    icon: MessageSquare,
+    category: 'management'
   },
   {
     id: 'settings',

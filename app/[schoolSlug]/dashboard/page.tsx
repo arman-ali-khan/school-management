@@ -17,6 +17,7 @@ import { ApplicationEdit } from '@/components/dashboard/application-edit'
 import { CarouselManagement } from '@/components/dashboard/carousel-management'
 import { FeesManagement } from '@/components/dashboard/fees-management'
 import { ReportsManagement } from '@/components/dashboard/reports-management'
+import { ComplaintManagement } from '@/components/dashboard/complaint-management'
 import { 
   Users, 
   FileText, 
@@ -311,6 +312,8 @@ export default function DashboardPage({ params }: { params: { schoolSlug: string
         return <FeesManagement schoolId={school?.id} userRole={userRole?.role} />
       case 'reports':
         return <ReportsManagement schoolId={school?.id} userRole={userRole?.role} />
+      case 'complaints':
+        return <ComplaintManagement schoolId={school?.id} userRole={userRole?.role} />
       case 'exams':
         return (
           <Card>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, School, LogIn, FileText } from 'lucide-react'
+import { Menu, X, School, LogIn, FileText, MessageSquare } from 'lucide-react'
 import { Button } from './button'
 
 interface NavbarProps {
@@ -44,6 +44,12 @@ export function Navbar({ schoolSlug, schoolName }: NavbarProps) {
               <Button className="bg-green-600 hover:bg-green-700">
                 <FileText className="h-4 w-4 mr-2" />
                 Apply Now
+              </Button>
+            </Link>
+            <Link href={`/${schoolSlug}/complaint`}>
+              <Button variant="outline">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Complaint
               </Button>
             </Link>
             <Link href={`/${schoolSlug}/login`}>
@@ -105,6 +111,12 @@ export function Navbar({ schoolSlug, schoolName }: NavbarProps) {
                 <Button className="w-full bg-green-600 hover:bg-green-700">
                   <FileText className="h-4 w-4 mr-2" />
                   Apply Now
+                </Button>
+              </Link>
+              <Link href={`/${schoolSlug}/complaint`} className="block">
+                <Button variant="outline" className="w-full">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Submit Complaint
                 </Button>
               </Link>
               <Link href={`/${schoolSlug}/login`} className="block">

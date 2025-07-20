@@ -526,14 +526,14 @@ export function ClassManagement({ schoolId, section }: ClassManagementProps) {
                         <div>
                           <Label>Section</Label>
                           <Select
-                            value={editFormData?.section}
-                            onValueChange={(value) => setEditFormData(prev => prev ? ({ ...prev, section: value }) : null)}
+                            value={editFormData?.section || "none"}
+                            onValueChange={(value) => setEditFormData(prev => prev ? ({ ...prev, section: value === "none" ? "" : value }) : null)}
                           >
                             <SelectTrigger className="mt-1">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">No Section</SelectItem>
+                              <SelectItem value="none">No Section</SelectItem>
                               {sections.map(section => (
                                 <SelectItem key={section} value={section}>{section}</SelectItem>
                               ))}

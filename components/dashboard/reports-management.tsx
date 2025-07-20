@@ -103,8 +103,8 @@ export function ReportsManagement({ schoolId, userRole }: ReportsManagementProps
   const [error, setError] = useState('')
   const [refreshing, setRefreshing] = useState(false)
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString())
-  const [selectedMonth, setSelectedMonth] = useState('')
-  const [selectedClass, setSelectedClass] = useState('')
+  const [selectedMonth, setSelectedMonth] = useState<string | undefined>(undefined)
+  const [selectedClass, setSelectedClass] = useState<string | undefined>(undefined)
   const { toast } = useToast()
 
   const [studentStats, setStudentStats] = useState<StudentStats>({
@@ -288,7 +288,7 @@ export function ReportsManagement({ schoolId, userRole }: ReportsManagementProps
         .eq('school_id', schoolId)
 
       // Apply filters
-      if (selectedClass) {
+      if (selectedClass !== undefined) {
         query = query.eq('class', selectedClass)
       }
 
@@ -1137,7 +1137,7 @@ export function ReportsManagement({ schoolId, userRole }: ReportsManagementProps
                   <SelectValue placeholder="All Months" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Months</SelectItem>
+                  <SelectItem value={undefined}>All Months</SelectItem>
                   {months.map((month, index) => (
                     <SelectItem key={month} value={(index + 1).toString()}>{month}</SelectItem>
                   ))}
@@ -1151,7 +1151,7 @@ export function ReportsManagement({ schoolId, userRole }: ReportsManagementProps
                   <SelectValue placeholder="All Classes" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Classes</SelectItem>
+                  <SelectItem value={undefined}>All Classes</SelectItem>
                   {studentStats.classwiseDistribution.map(cls => (
                     <SelectItem key={cls.class} value={cls.class}>{cls.class}</SelectItem>
                   ))}
